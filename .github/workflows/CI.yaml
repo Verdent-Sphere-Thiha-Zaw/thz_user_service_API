@@ -10,11 +10,11 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 jobs:
-  # build:
-  #   name: Build
-  #   uses: ./.github/workflows/Build.yaml
-  #   with:
-  #     node-version: '22'
+  build:
+    name: Build
+    uses: ./.github/workflows/Build.yaml
+    with:
+      node-version: '22'
 
   # test:
   #   name: Test
