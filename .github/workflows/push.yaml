@@ -35,14 +35,13 @@ jobs:
         input: image.tar
         severity: "MEDIUM,HIGH,CRITICAL"
         format: 'sarif'
-        output: 'trivy-results.sarif'
+        output: 'results.sarif'
 
     - name: Upload SARIF file
       uses: github/codeql-action/upload-sarif@v3
       with:
-        sarif_file: trivy-results.sarif
-        category: my-analysis-tool
-  
+        # Path to SARIF file relative to the root of the repository
+        sarif_file: results.sarif
 
     # - name: Upload Trivy report as a GitHub artifact
     #   uses: actions/upload-artifact@v4
