@@ -23,8 +23,8 @@ jobs:
 
     - name: Build Docker image
       run: |
-        docker buildx build -t VSUS:latest .
-        docker save VSUS:latest -o image.tar
+        docker buildx build -t vsus_verdentsphere:latest .
+        docker save vsus_verdentsphere:latest -o image.tar
 
     - name: Scan Docker image with Trivy
       id: trivy_scan
@@ -55,5 +55,5 @@ jobs:
 
     - name: Tag Docker image
       run: |
-        docker tag VSUS:latest ${{ secrets.DOCKERHUB_USERNAME }}/VSUS:${GITHUB_REF#refs/heads/}
-        docker push ${{ secrets.DOCKERHUB_USERNAME }}/VSUS:${GITHUB_REF#refs/heads/}
+        docker tag vsus_verdentsphere:latest ${{ secrets.DOCKERHUB_USERNAME }}/vsus_verdentsphere:${GITHUB_REF#refs/heads/}
+        docker push ${{ secrets.DOCKERHUB_USERNAME }}/vsus_verdentsphere:${GITHUB_REF#refs/heads/}
