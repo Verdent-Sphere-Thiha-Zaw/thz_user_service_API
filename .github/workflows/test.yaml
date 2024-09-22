@@ -37,5 +37,6 @@ jobs:
 
       - name: Test the App
         run: |
+          export PORT=3000
           export DATABASE_URI=mongodb://root:example@127.0.0.1:27017/test?authSource=admin
           npm test
