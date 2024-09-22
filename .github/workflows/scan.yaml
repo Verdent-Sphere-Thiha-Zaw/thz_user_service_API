@@ -23,6 +23,9 @@ jobs:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
           GITHUB_TOKEN: ${{ secrets.PAT }}
+          SONAR_PULL_REQUEST: ${{ github.event.pull_request.number }}  # This sets the pull request number
+          SONAR_PULL_REQUEST_BRANCH: ${{ github.head_ref }}  # The source branch for the PR
+          SONAR_PULL_REQUEST_BASE_BRANCH: ${{ github.base_ref }}  # The base branch for the PR
       # If you wish to fail your job when the Quality Gate is red, uncomment the
       # following lines. This would typically be used to fail a deployment.
       - uses: sonarsource/sonarqube-quality-gate-action@master
