@@ -1,4 +1,4 @@
-name: Push Docker image with Trivy scan results
+name: Push Docker image
 
 on:
   workflow_call:
@@ -7,110 +7,53 @@ on:
         required: true
       DOCKERHUB_TOKEN:
         required: true
-
 jobs:
   push:
-    name: Build and Push Docker Image
+    name: Build, Scan with Trivy, and Push Docker Image
     runs-on: ubuntu-latest
-
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+    - name: Checkout code
+      uses: actions/checkout@v4
 
-      - name: Set up Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: '22'
+    - name: Docker Build
+      uses: docker/setup-buildx-action@v3.3.0
 
-      # Set up Docker Buildx
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v2
+    - name: Buildx version
+      run: docker buildx version
 
-      # Log in to Docker Hub
-      - name: Log in to Docker Hub
-        uses: docker/login-action@v3
-        with:
-          registry: https://index.docker.io/v1/
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
+    - name: Build Docker image
+      run: |
+        docker buildx build -t VSUS:latest .
+        docker save VSUS:latest -o image.tar
 
-      # Build Docker image
-      - name: Build Docker image
-        id: build
-        run: |
-          docker buildx build -t VSUS:latest .
-          docker save VSUS:latest -o vuln-image.tar
+    - name: Scan Docker image with Trivy
+      id: trivy_scan
+      uses: aquasecurity/trivy-action@0.23.0
+      with:
+        input: image.tar
+        severity: "MEDIUM,HIGH,CRITICAL"
+        format: 'table'
+        template: '@/contrib/gitlab.tpl'
+        output: 'report.txt'
 
-      # Download Trivy HTML template
-      - name: Download Trivy HTML template
-        run: |
-          curl -L https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/html.tpl -o html.tpl
+    - name: Upload Trivy report as a GitHub artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: trivy-scan-report
+        path: report.txt
+        retention-days: 1
 
-      - name: create results folder
-        run:
-          mkdir results/
+    - name: Log in to Docker Hub
+      uses: docker/login-action@v3.2.0
+      with:
+        registry: https://index.docker.io/v1/
+        username: ${{ secrets.DOCKERHUB_USERNAME }}
+        password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      # Run Trivy vulnerability scanner in tarball mode
-      - name: Run Trivy vulnerability scanner
-        id: trivy
-        uses: aquasecurity/trivy-action@0.20.0
-        with:
-          input: vuln-image.tar
-          severity: 'CRITICAL,HIGH'
-          format: 'template'
-          template: '@html.tpl'
-          output: 'results/report.html'
+    - name: Load Docker image from tarball
+      run: docker load < ${{ github.workspace }}/image.tar
 
-      # Check Trivy scan result
-      - name: Check Trivy scan result
-        if: steps.trivy.outputs.exit-code != 0
-        run: |
-          echo "Trivy scan failed with CRITICAL or HIGH vulnerabilities."
-          exit 1
-
-      # Upload Trivy scan results
-      - name: Upload scan results
-        uses: actions/upload-artifact@v2
-        with:
-          name: trivy-scan-results
-          path: results/
-
-      # # Post Trivy scan results to PR
-      # - name: Post Trivy scan results to PR
-      #   uses: actions/github-script@v6
-      #   if: steps.trivy.outputs.exit-code == 0
-      #   with:
-      #     script: |
-      #       const fs = require('fs');
-      #       const report = fs.readFileSync('results/report.html', 'utf8');
-      #       github.rest.issues.createComment({
-      #         ...context.repo,
-      #         issue_number: context.issue.number,
-      #         body: `Trivy Scan Results:\n\n${report}`
-      #       });
-      
-      - name: Generate report URL
-        id: generate-url
-        run: |
-          echo "report_url=https://github.com/${{ github.repository }}/suites/${{ github.run_id }}/artifacts/" >> $GITHUB_ENV
-
-      - name: Post Trivy report URL as PR comment
-        uses: actions/github-script@v6
-        if: github.event_name == 'pull_request'
-        with:
-          script: |
-            const reportUrl = process.env.report_url;
-            github.rest.issues.createComment({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              issue_number: context.issue.number,
-              body: `Trivy scan completed. [View the report](${reportUrl})`
-            });
-
-      # Build and push Docker image if Trivy scan passed
-      - name: Build and push Docker image
-        if: steps.trivy.outputs.exit-code == 0
-        run: |
-          docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/VSUS:latest .
-          docker push ${{ secrets.DOCKERHUB_USERNAME }}/VSUS:latest
-
+    - name: Tag Docker image
+      run: |
+        docker tag VSUS:latest ${{ secrets.DOCKERHUB_USERNAME }}/VSUS:${GITHUB_REF#refs/heads/}
+        docker push ${{ secrets.DOCKERHUB_USERNAME }}/VSUS:${GITHUB_REF#refs/heads/}
