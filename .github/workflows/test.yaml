@@ -16,9 +16,9 @@ jobs:
         image: mongo:latest
         ports:
           - 27017:27017
-        environment:
-          - MONGO_INITDB_ROOT_USERNAME=root 
-          - MONGO_INITDB_ROOT_PASSWORD=example
+        options: > 
+          --env MONGO_INITDB_ROOT_USERNAME=root 
+          --env MONGO_INITDB_ROOT_PASSWORD=example
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
