@@ -30,6 +30,7 @@ jobs:
     secrets:
       SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
       SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+      PAT: ${{ secrets.PAT }}
 
   push:
     name: Push
