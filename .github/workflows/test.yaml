@@ -16,9 +16,9 @@ jobs:
         image: mongo:latest
         ports:
           - 27017:27017
-        options: > 
-          --env MONGO_INITDB_ROOT_USERNAME=root 
-          --env MONGO_INITDB_ROOT_PASSWORD=example
+        environment:
+          - MONGO_INITDB_ROOT_USERNAME=root 
+          - MONGO_INITDB_ROOT_PASSWORD=example
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -26,6 +26,12 @@ jobs:
       - uses: ./.github/prepare-action
         with:
           node-version: ${{ inputs.node-version }}
-          
+
+      - name: Check Mongodb
+        run:
+          docker ps
+        
       - name: Test the App
-        run: npm test
+        run: |
+          export DATABASE_URI=mongodb://root:example@mongodb:27017/test?authSource=admin
+          npm test
