@@ -1,0 +1,8 @@
+Build: Install dependencies and compile the application to verify that the codebase is functional and free of build errors.
+Test: Execute unit tests to ensure that individual components of the application function correctly.
+Code Scanning: Perform static code analysis using SonarCloud to detect potential code quality issues, vulnerabilities, and maintainability concerns.
+Dockerization: Build a Docker image of the application, scan it for vulnerabilities, and push the image to a Docker registry for deployment.
+Acceptance Criteria
+Reusable workflow is optional.
+Code Scanning result must show in PR comments.
+Container Scanning result must upload to GitHub Security tab via SARIF upload.
