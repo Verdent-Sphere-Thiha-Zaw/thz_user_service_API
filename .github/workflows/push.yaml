@@ -20,7 +20,7 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: '20'
+          node-version: '22'
 
       # Set up Docker Buildx
       - name: Set up Docker Buildx
@@ -38,8 +38,8 @@ jobs:
       - name: Build Docker image
         id: build
         run: |
-          docker build -t laravel_app:latest .
-          docker save laravel_app:latest -o vuln-image.tar
+          docker buildx build -t VSUS:latest .
+          docker save VSUS:latest -o vuln-image.tar
 
       # Download Trivy HTML template
       - name: Download Trivy HTML template
@@ -111,6 +111,6 @@ jobs:
       - name: Build and push Docker image
         if: steps.trivy.outputs.exit-code == 0
         run: |
-          docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/laravel-app:latest .
-          docker push ${{ secrets.DOCKERHUB_USERNAME }}/laravel-app:latest
+          docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/VSUS:latest .
+          docker push ${{ secrets.DOCKERHUB_USERNAME }}/VSUS:latest
 
