@@ -23,7 +23,7 @@ jobs:
 
     - name: Build Docker image
       run: |
-        docker buildx build -t vsus_verdentsphere:latest .
+        docker build -t vsus_verdentsphere:latest .
         docker save vsus_verdentsphere:latest -o image.tar
 
     - name: Scan Docker image with Trivy
