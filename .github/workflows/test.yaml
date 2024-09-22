@@ -33,5 +33,5 @@ jobs:
         
       - name: Test the App
         run: |
-          export DATABASE_URI=mongodb://root:example@mongodb:27017/test?authSource=admin
+          export DATABASE_URI=mongodb://root:example@localhost:27017/test?authSource=admin
           npm test
