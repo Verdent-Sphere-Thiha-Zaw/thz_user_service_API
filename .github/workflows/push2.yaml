@@ -46,19 +46,19 @@ jobs:
         username: ${{ secrets.DOCKERHUB_USERNAME }}
         password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-    - name: Build and push by digest
+    - name: Build and push Docker image by digest
       id: build
       uses: docker/build-push-action@v6
       with:
         platforms: ${{ matrix.platform }}
         labels: ${{ steps.meta.outputs.labels }}
-        outputs: type=image,name=${{ secrets.DOCKERHUB_USERNAME }}/multi,push-by-digest=true,name-canonical=true,push=true
-        
-    # - name: Build Docker image
-    #   run: |
-    #     docker build -t vsus_verdentsphere:latest .
-    #     docker save vsus_verdentsphere:latest -o image.tar
-
+        outputs: |
+          type=image,
+          name=${{ secrets.DOCKERHUB_USERNAME }}/multi,
+          push-by-digest=true,
+          name-canonical=true,
+          push=true
+      
     - name: Scan Docker image with Trivy
       id: trivy_scan
       uses: aquasecurity/trivy-action@0.23.0
@@ -67,6 +67,7 @@ jobs:
         severity: "MEDIUM,HIGH,CRITICAL"
         format: 'sarif'
         output: 'results.sarif'
+      
 
     - name: Upload SARIF file
       uses: github/codeql-action/upload-sarif@v3

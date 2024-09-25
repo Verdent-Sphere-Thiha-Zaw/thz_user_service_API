@@ -36,15 +36,6 @@ jobs:
   push:
     name: Push
     # needs: [test]
-    uses: ./.github/workflows/push.yaml
-    secrets:
-      DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
-      DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
-      PAT: ${{ secrets.PAT }}
-
-  push2:
-    name: Push2
-    # needs: [test]
     uses: ./.github/workflows/push2.yaml
     secrets:
       DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
