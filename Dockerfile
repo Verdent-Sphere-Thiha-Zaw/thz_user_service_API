@@ -16,4 +16,5 @@ FROM base
 # COPY --from=prod-deps /app/node_modules /app/node_modules
 COPY --from=build /app/dist /app/dist
 EXPOSE 3000
-CMD [ "pnpm", "start:dev" ]# FROM node:20-slim AS base
+ENTRYPOINT [ "pnpm" ]
+CMD [ "start:dev" ]
