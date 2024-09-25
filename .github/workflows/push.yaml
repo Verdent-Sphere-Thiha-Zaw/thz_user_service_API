@@ -1,0 +1,163 @@
+name: Push Docker image
+
+on:
+  workflow_call:
+    secrets:
+      DOCKERHUB_USERNAME:
+        required: true
+      DOCKERHUB_TOKEN:
+        required: true
+      PAT:
+        required: true
+jobs:
+  push:
+    name: Build, Scan with Trivy, and Push Docker Image
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        platform:
+          - linux/amd64
+          - linux/arm/v6
+          - linux/arm/v7
+          - linux/arm64
+    steps:
+    - name: Prepare
+      run: |
+        platform=${{ matrix.platform }}
+        echo "PLATFORM_PAIR=${platform//\//-}" >> $GITHUB_ENV  
+
+    - name: Docker meta
+      id: meta
+      uses: docker/metadata-action@v5
+      with:
+        images: ${{ secrets.DOCKERHUB_USERNAME }}/multi
+    
+    - name: Set up QEMU
+      uses: docker/setup-qemu-action@v3
+    
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v3
+    
+    - name: Login to Docker Hub
+      uses: docker/login-action@v3
+      with:
+        username: ${{ secrets.DOCKERHUB_USERNAME }}
+        password: ${{ secrets.DOCKERHUB_TOKEN }}
+    
+    - name: Build and push by digest
+      id: build
+      uses: docker/build-push-action@v6
+      with:
+        platforms: ${{ matrix.platform }}
+        labels: ${{ steps.meta.outputs.labels }}
+        outputs: type=image,name=${{ secrets.DOCKERHUB_USERNAME }}/multi,push-by-digest=true,name-canonical=true,push=true
+    
+    - name: Export digest
+      run: |
+        mkdir -p /tmp/digests
+        digest="${{ steps.build.outputs.digest }}"
+        touch "/tmp/digests/${digest#sha256:}"          
+    
+    - name: Upload digest
+      uses: actions/upload-artifact@v4
+      with:
+        name: digests-${{ matrix.platform }}
+        path: /tmp/digests/*
+        if-no-files-found: error
+        retention-days: 1
+
+  merge:
+    runs-on: ubuntu-latest
+    needs:
+      - build
+    steps:
+      - name: Download digests
+        uses: actions/download-artifact@v4
+        with:
+          path: /tmp/digests
+          pattern: digests-*
+          merge-multiple: true
+      
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+      
+      - name: Docker meta
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ secrets.DOCKERHUB_USERNAME }}/multi
+      
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ vars.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+      
+      - name: Create manifest list and push
+        working-directory: /tmp/digests
+        run: |
+          docker buildx imagetools create $(jq -cr '.tags | map("-t " + .) | join(" ")' <<< "$DOCKER_METADATA_OUTPUT_JSON") \
+            $(printf '${{ secrets.DOCKERHUB_USERNAME }}/multi@sha256:%s ' *)          
+      
+      - name: Inspect image
+        run: |
+          docker buildx imagetools inspect ${{ env.REGISTRY_IMAGE }}:${{ steps.meta.outputs.version }}
+
+
+
+
+
+
+    # - name: Checkout code
+    #   uses: actions/checkout@v4
+
+    # - name: Docker Build
+    #   uses: docker/setup-buildx-action@v3.3.0
+
+    # - name: Buildx version
+    #   run: docker buildx version
+
+    # - name: Build Docker image
+    #   run: |
+    #     docker build -t vsus_verdentsphere:latest .
+    #     docker save vsus_verdentsphere:latest -o image.tar
+
+    # - name: Scan Docker image with Trivy
+    #   id: trivy_scan
+    #   uses: aquasecurity/trivy-action@0.23.0
+    #   with:
+    #     input: image.tar
+    #     severity: "MEDIUM,HIGH,CRITICAL"
+    #     format: 'sarif'
+    #     output: 'results.sarif'
+
+    # - name: Upload SARIF file
+    #   uses: github/codeql-action/upload-sarif@v3
+    #   with:
+    #     # Path to SARIF file relative to the root of the repository
+    #     sarif_file: results.sarif
+    #   env:
+    #     GITHUB_TOKEN: ${{ secrets.PAT }}
+
+    # # - name: Upload Trivy report as a GitHub artifact
+    # #   uses: actions/upload-artifact@v4
+    # #   with:
+    # #     name: trivy-scan-report
+    # #     path: report.txt
+    # #     retention-days: 1
+
+    # - name: Log in to Docker Hub
+    #   uses: docker/login-action@v3.2.0
+    #   with:
+    #     registry: https://index.docker.io/v1/
+    #     username: ${{ secrets.DOCKERHUB_USERNAME }}
+    #     password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+    # - name: Load Docker image from tarball
+    #   run: docker load < ${{ github.workspace }}/image.tar
+
+    # - name: Tag Docker image
+    #   run: |
+    #     docker tag vsus_verdentsphere:latest ${{ secrets.DOCKERHUB_USERNAME }}/vsus_verdentsphere:dev
+    #     docker push ${{ secrets.DOCKERHUB_USERNAME }}/vsus_verdentsphere:dev
