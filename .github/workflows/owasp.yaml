@@ -1,0 +1,13 @@
+name: "OWASP ZAP scan"
+on:
+  push:
+  cancel-in-progress: true
+jobs:
+  build:
+    name: Testing ZAP
+    runs-on: ubuntu-latest
+    steps:
+    - name: ZAP Scan
+        uses: zaproxy/action-full-scan@v0.11.0
+        with:
+        target: 'https://www.zaproxy.org/'
