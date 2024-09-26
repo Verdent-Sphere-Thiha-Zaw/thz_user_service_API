@@ -1,6 +1,5 @@
 name: "OWASP ZAP scan"
-on:
-  push:
+on: push
   cancel-in-progress: true
 jobs:
   build:
