@@ -16,6 +16,10 @@ jobs:
     with:
       node-version: '22'
 
+  owasp:
+    name: Scan the Web App
+    uses: ./.github/workflows/owasp.yaml
+
   test:
     name: Test
     needs: [build]
