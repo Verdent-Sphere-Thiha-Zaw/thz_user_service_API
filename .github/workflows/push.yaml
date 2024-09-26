@@ -109,22 +109,22 @@ jobs:
           $(printf '${{ secrets.DOCKERHUB_USERNAME }}/multi@sha256:%s ' *)          
 
 
-  - name: Scan Docker image with Trivy
-    id: trivy_scan
-    uses: aquasecurity/trivy-action@0.23.0
-    with:
-      image-ref: ${{ secrets.DOCKERHUB_USERNAME }}/multi:${{ steps.meta.outputs.version }}
-      severity: "MEDIUM,HIGH,CRITICAL"
-      format: 'sarif'
-      output: 'results.sarif'
-  
-  - name: Upload SARIF file
-    uses: github/codeql-action/upload-sarif@v3
-    with:
-      # Path to SARIF file relative to the root of the repository
-      sarif_file: 'results.sarif'
-    env:
-      GITHUB_TOKEN: ${{ secrets.PAT }}
+    - name: Scan Docker image with Trivy
+      id: trivy_scan
+      uses: aquasecurity/trivy-action@0.23.0
+      with:
+        image-ref: ${{ secrets.DOCKERHUB_USERNAME }}/multi:${{ steps.meta.outputs.version }}
+        severity: "MEDIUM,HIGH,CRITICAL"
+        format: 'sarif'
+        output: 'results.sarif'
+    
+    - name: Upload SARIF file
+      uses: github/codeql-action/upload-sarif@v3
+      with:
+        # Path to SARIF file relative to the root of the repository
+        sarif_file: 'results.sarif'
+      env:
+        GITHUB_TOKEN: ${{ secrets.PAT }}
 
     - name: Inspect image
       run: |
