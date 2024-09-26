@@ -23,7 +23,7 @@ jobs:
     with:
       node-version: '22'
 
-  scan:
+  SAST:
     name: SAST
     needs: [test]
     uses: ./.github/workflows/scan.yaml
@@ -31,6 +31,13 @@ jobs:
       SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
       SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
       PAT: ${{ secrets.PAT }}
+
+  Scan_SNYK:
+    name: SNYK
+    needs: [test]
+    uses: ./.github/workflows/scan2.yaml
+    secrets:
+      SNYK_TOKEN: ${{ secrets.SNYK }}
 
   push:
     name: Push
