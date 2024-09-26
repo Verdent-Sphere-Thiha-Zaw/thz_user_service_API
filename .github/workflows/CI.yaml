@@ -10,31 +10,31 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 jobs:
-  # build:
-  #   name: Build
-  #   uses: ./.github/workflows/Build.yaml
-  #   with:
-  #     node-version: '22'
+  build:
+    name: Build
+    uses: ./.github/workflows/Build.yaml
+    with:
+      node-version: '22'
 
-  # test:
-  #   name: Test
-  #   needs: [build]
-  #   uses: ./.github/workflows/test.yaml
-  #   with:
-  #     node-version: '22'
+  test:
+    name: Test
+    needs: [build]
+    uses: ./.github/workflows/test.yaml
+    with:
+      node-version: '22'
 
-  # scan:
-  #   name: SAST
-  #   needs: [test]
-  #   uses: ./.github/workflows/scan.yaml
-  #   secrets:
-  #     SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
-  #     SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-  #     PAT: ${{ secrets.PAT }}
+  scan:
+    name: SAST
+    needs: [test]
+    uses: ./.github/workflows/scan.yaml
+    secrets:
+      SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
+      SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+      PAT: ${{ secrets.PAT }}
 
   push:
     name: Push
-    # needs: [test]
+    needs: [test]
     uses: ./.github/workflows/push.yaml
     secrets:
       DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
