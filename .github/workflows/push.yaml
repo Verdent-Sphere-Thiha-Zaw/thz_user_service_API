@@ -96,11 +96,15 @@ jobs:
       with:
         images: ${{ secrets.DOCKERHUB_USERNAME }}/multi
 
+    - name: Save image into Tar file
+      run: |
+        docker save -o ${{ secrets.DOCKERHUB_USERNAME }}/multi.tar
+
     - name: Scan Docker image with Trivy
       id: trivy_scan
       uses: aquasecurity/trivy-action@0.23.0
       with:
-        image-ref: ${{ secrets.DOCKERHUB_USERNAME }}/multi:${{ steps.meta.outputs.version }}
+        image: ${{ secrets.DOCKERHUB_USERNAME }}/multi.tar
         severity: "MEDIUM,HIGH,CRITICAL"
         format: 'sarif'
         output: 'results.sarif'
