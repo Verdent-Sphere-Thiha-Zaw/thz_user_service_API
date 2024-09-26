@@ -31,7 +31,7 @@ RUN pnpm install --prod
 
 USER node
 
-FROM node:alpine3.20@sha256:c9bb43423a6229aeddf3d16ae6aaa0ff71a0b2951ce18ec8fedb6f5d766cf286 AS production
+FROM node:alpine3.20 AS production
 
 COPY --chown=node:node --from=build /usr/src/app/node_modules ./node_modules
 COPY --chown=node:node --from=build /usr/src/app/dist ./dist
