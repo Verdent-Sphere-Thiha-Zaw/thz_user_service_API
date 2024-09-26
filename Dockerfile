@@ -25,7 +25,7 @@ COPY --chown=node:node . .
 
 RUN pnpm build
 
-ENV NODE_ENV production
+ENV NODE_ENV=production
 
 RUN pnpm install --prod
 
@@ -37,5 +37,4 @@ COPY --chown=node:node --from=build /usr/src/app/node_modules ./node_modules
 COPY --chown=node:node --from=build /usr/src/app/dist ./dist
 
 EXPOSE 3000
-ENTRYPOINT [ "pnpm" ]
-CMD [ "start:dev" ]
+CMD [ "node", "dist/main.js" ]
