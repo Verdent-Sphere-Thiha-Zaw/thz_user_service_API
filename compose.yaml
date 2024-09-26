@@ -10,6 +10,7 @@ services:
 
   nestjs-app:
     container_name: nestjs-app
+    # image: techrepos/multi:dev
     build:
       context: .
       dockerfile: Dockerfile
