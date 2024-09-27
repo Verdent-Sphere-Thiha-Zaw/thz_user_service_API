@@ -21,13 +21,25 @@ export class UserService {
   }
 
   async update(updateUserDto: UpdateUserDto): Promise<IUser> {
+    const updateData = this.sanitizeUpdateData(updateUserDto);
     const updatedUser = await this.userModel.findByIdAndUpdate(
       updateUserDto.id,
-      { ...updateUserDto },
+      { $set: updateData },
       { new: true },
     );
 
     return UserTransformer.transformerToUser(updatedUser);
+  }
+
+  private sanitizeUpdateData(updateUserDto: UpdateUserDto): Partial<UpdateUserDto> {
+    const allowedFields = ['name', 'email', 'password']; // Add all allowed fields here
+    const sanitizedData: Partial<UpdateUserDto> = {};
+    for (const key of allowedFields) {
+      if (key in updateUserDto) {
+        sanitizedData[key] = updateUserDto[key];
+      }
+    }
+    return sanitizedData;
   }
 
   async getUsers(): Promise<IUser[]> {
