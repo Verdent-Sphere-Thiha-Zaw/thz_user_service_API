@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { User } from './schema/user.schema';
-import { Model } from 'mongoose';
+import { Model, Types } from 'mongoose';
 import { CreateUserDto, UpdateUserDto } from './dto';
 import { IUser } from 'src/common';
 import { UserTransformer } from './transformer';
@@ -21,9 +21,12 @@ export class UserService {
   }
 
   async update(updateUserDto: UpdateUserDto): Promise<IUser> {
+    if (!Types.ObjectId.isValid(updateUserDto.id)) {
+      throw new Error('Invalid user ID');
+    }
     const updateData = this.sanitizeUpdateData(updateUserDto);
     const updatedUser = await this.userModel.findByIdAndUpdate(
-      updateUserDto.id,
+      { _id: { $eq: updateUserDto.id } },
       { $set: updateData },
       { new: true },
     );
