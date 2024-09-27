@@ -9,3 +9,4 @@ jobs:
       uses: zaproxy/action-full-scan@v0.11.0
       with:
         target: 'https://privategamehost.com:443/'
+        
