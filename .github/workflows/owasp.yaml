@@ -8,5 +8,6 @@ jobs:
     - name: ZAP Scan
       uses: zaproxy/action-full-scan@v0.11.0
       with:
-        target: 'https://privategamehost.com:443/'
+        target: 'https://dis03.dexon-technology.com:8089/'
+        # target: 'https://privategamehost.com:443/'
         
