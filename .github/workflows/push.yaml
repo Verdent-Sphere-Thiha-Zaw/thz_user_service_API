@@ -127,3 +127,4 @@ jobs:
     - name: Inspect image
       run: |
         docker buildx imagetools inspect ${{ secrets.DOCKERHUB_USERNAME }}/nodeapp:${{ steps.meta.outputs.version }}
+        
