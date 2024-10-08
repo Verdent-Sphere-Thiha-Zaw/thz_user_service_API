@@ -30,15 +30,15 @@ pipeline {
             }
         }
 
-        stage('Deploy') {
-            steps {
-                // Deployment steps (adjust according to your needs)
-                // Example: Deploying using SSH
-                sh '''
-                    ssh user@your-server "cd /path/to/your/app && git pull && npm install && npm run start"
-                '''
-            }
-        }
+        // stage('Deploy') {
+        //     steps {
+        //         // Deployment steps (adjust according to your needs)
+        //         // Example: Deploying using SSH
+        //         sh '''
+        //             ssh user@your-server "cd /path/to/your/app && git pull && npm install && npm run start"
+        //         '''
+        //     }
+        // }
     }
 
     post {
