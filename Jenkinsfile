@@ -1,6 +1,8 @@
 pipeline {
     agent any  // Use any available agent
-
+    tools {
+        nodejs 'NodeJS'  // Use the name you gave in the configuration
+    }
     stages {
         stage('Checkout') {
             steps {
@@ -18,23 +20,22 @@ pipeline {
         stage('Install Dependencies') {
             steps {
                 // Install Node.js dependencies
-                sh '/root/.nvm/versions/node/v22.9.0/bin/node -v'
-                sh '/root/.nvm/versions/node/v22.9.0/bin/node -v'
-                sh '/root/.nvm/versions/node/v22.9.0/bin/node install'
+                sh 'node -v'
+                sh 'npm install -g'
             }
         }
 
         stage('Run Tests') {
             steps {
                 // Run tests
-                sh '/root/.nvm/versions/node/v22.9.0/bin/node test'
+                sh 'npm test'
             }
         }
 
         stage('Build') {
             steps {
                 // Build the application (adjust if you have a specific build script)
-                sh '/root/.nvm/versions/node/v22.9.0/bin/node run build'
+                sh 'npm run build'
             }
         }
 
