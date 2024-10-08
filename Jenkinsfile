@@ -29,7 +29,7 @@ pipeline {
             steps {
                 // Run tests
                 sh 'node -v'
-                sh 'npm install -g'
+                sh 'npm install'
                 sh 'npm test'
             }
         }
@@ -38,7 +38,7 @@ pipeline {
             steps {
                 // Build the application (adjust if you have a specific build script)
                 sh 'node -v'
-                sh 'npm install -g'
+                sh 'npm install'
                 sh 'npm run build'
             }
         }
