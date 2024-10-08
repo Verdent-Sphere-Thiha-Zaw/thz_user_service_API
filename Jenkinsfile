@@ -18,23 +18,23 @@ pipeline {
         stage('Install Dependencies') {
             steps {
                 // Install Node.js dependencies
-                sh 'node -v'
-                sh 'npm -v'
-                sh 'npm install'
+                sh '/root/.nvm/versions/node/v22.9.0/bin/node -v'
+                sh '/root/.nvm/versions/node/v22.9.0/bin/node -v'
+                sh '/root/.nvm/versions/node/v22.9.0/bin/node install'
             }
         }
 
         stage('Run Tests') {
             steps {
                 // Run tests
-                sh 'npm test'
+                sh '/root/.nvm/versions/node/v22.9.0/bin/node test'
             }
         }
 
         stage('Build') {
             steps {
                 // Build the application (adjust if you have a specific build script)
-                sh 'npm run build'
+                sh '/root/.nvm/versions/node/v22.9.0/bin/node run build'
             }
         }
 
