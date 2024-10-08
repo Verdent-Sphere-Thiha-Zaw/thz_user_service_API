@@ -69,7 +69,7 @@
 
 pipeline {
     agent {
-        label 'ubuntu'  // Ensure you're running on an Ubuntu agent
+        label any  // Ensure you're running on an Ubuntu agent
     }
 
     environment {
