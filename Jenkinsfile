@@ -9,9 +9,17 @@ pipeline {
             }
         }
 
+        stage('Check PATH') {
+            steps {
+                sh 'echo $PATH'
+            }
+        }
+
         stage('Install Dependencies') {
             steps {
                 // Install Node.js dependencies
+                sh 'node -v'
+                sh 'npm -v'
                 sh 'npm install'
             }
         }
