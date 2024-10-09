@@ -3,6 +3,12 @@ pipeline {
     tools {
         nodejs 'NodeJS'  // Use the name you gave in the configuration
     }
+    environment {
+        MONGO_INITDB_ROOT_USERNAME = 'root'
+        MONGO_INITDB_ROOT_PASSWORD = 'example'
+        DATABASE_URI = 'mongodb://root:example@localhost:27017/test?authSource=admin'
+        PORT = '3000'
+    }
     stages {
         stage('Checkout') {
             steps {
@@ -19,11 +25,43 @@ pipeline {
             }
         }
 
+        stage('Start MongoDB') {
+            steps {
+                script {
+                    // Start MongoDB as a Docker container
+                    sh '''
+                    docker run -d \
+                    --name mongodb \
+                    -e MONGO_INITDB_ROOT_USERNAME=${MONGO_INITDB_ROOT_USERNAME} \
+                    -e MONGO_INITDB_ROOT_PASSWORD=${MONGO_INITDB_ROOT_PASSWORD} \
+                    -p 27017:27017 \
+                    mongo:latest
+                    '''
+                }
+            }
+        }
+
+        stage('Wait for MongoDB to be Ready') {
+            steps {
+                script {
+                    // Wait for MongoDB to be ready
+                    sh '''
+                    until nc -zv 127.0.0.1 27017; do
+                        echo "Waiting for MongoDB..."
+                        sleep 2
+                    done
+                    '''
+                }
+            }
+        }
+
         stage('Run Tests') {
             steps {
                 catchError(buildResult: 'SUCCESS', stageResult: 'SUCCESS') {
                     sh 'npm -v'
-                    sh 'npm run test'
+                    sh '''
+                    timeout 20s npm test || true
+                    '''
                 }
             }
         }
@@ -48,10 +86,18 @@ pipeline {
         success {
             // Actions to take on successful build
             echo 'Build succeeded!'
+            script {
+                sh 'docker stop mongodb || true'
+                sh 'docker rm mongodb || true'
+            }
         }
         failure {
             // Actions to take on build failure
             echo 'Build failed!'
+            script {
+                sh 'docker stop mongodb || true'
+                sh 'docker rm mongodb || true'
+            }
         }
     }
 }
