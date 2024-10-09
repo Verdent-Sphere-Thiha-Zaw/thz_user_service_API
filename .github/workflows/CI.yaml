@@ -29,6 +29,13 @@ jobs:
     with:
       node-version: '22'
 
+  snyk:
+    name: SAST (SNYK)
+    needs: [test]
+    uses: ./.github/workflows/scan2.yaml
+    secrets:
+      SNYK_TOKEN: ${{ secrets.SNYK }}
+
   scan:
     name: SAST
     needs: [test]
