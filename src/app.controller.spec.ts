@@ -6,6 +6,7 @@ import { MongooseHealthIndicator } from '@nestjs/terminus';
 
 describe('AppController', () => {
   let appController: AppController;
+  let app: TestingModule; // Store the TestingModule instance
 
   const mockHealthCheckService = {
     check: jest.fn().mockResolvedValue({ status: 'ok' }),
@@ -16,7 +17,7 @@ describe('AppController', () => {
   };
 
   beforeEach(async () => {
-    const app: TestingModule = await Test.createTestingModule({
+    app = await Test.createTestingModule({
       controllers: [AppController],
       providers: [
         { provide: AppService, useValue: mockAppService }, // Use the mock AppService
@@ -26,6 +27,10 @@ describe('AppController', () => {
     }).compile();
 
     appController = app.get<AppController>(AppController);
+  });
+
+  afterEach(async () => {
+    await app.close(); // Ensure the app is closed after each test
   });
 
   describe('health check', () => {
