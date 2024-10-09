@@ -83,21 +83,19 @@ pipeline {
     }
 
     post {
+        always {
+            echo 'Cleaning up MongoDB...'
+            // Clean up MongoDB container
+            sh 'docker stop mongodb || true'
+            sh 'docker rm mongodb || true'
+        }
         success {
             // Actions to take on successful build
             echo 'Build succeeded!'
-            script {
-                sh 'docker stop mongodb || true'
-                sh 'docker rm mongodb || true'
-            }
         }
         failure {
             // Actions to take on build failure
             echo 'Build failed!'
-            script {
-                sh 'docker stop mongodb || true'
-                sh 'docker rm mongodb || true'
-            }
         }
     }
 }
