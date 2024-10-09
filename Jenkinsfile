@@ -31,13 +31,14 @@ pipeline {
             steps {
                 // Build the application (adjust if you have a specific build script)
                 sh 'npm run build'
+                sh 'ls -la dist' 
             }
         }
 
         stage('Archive Artifacts') {
             steps {
                 echo 'Archiving build file...'
-                archiveArtifacts artifacts: 'dist', allowEmptyArchive: false
+                archiveArtifacts artifacts: 'dist/**/*', allowEmptyArchive: false
             }
         }
 
