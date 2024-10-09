@@ -1,7 +1,12 @@
+// def call(String nodeVersion) {
+//     stage('Setup Node Environment') {
+//         echo "Setting up Node.js version: ${nodeVersion}"
+//         sh "nvm install ${nodeVersion}" // Assuming nvm is installed
+//         sh "nvm use ${nodeVersion}"
+//     }
+// }
+// commonPipeline.groovy
 def call(String nodeVersion) {
-    stage('Setup Node Environment') {
-        echo "Setting up Node.js version: ${nodeVersion}"
-        sh "nvm install ${nodeVersion}" // Assuming nvm is installed
-        sh "nvm use ${nodeVersion}"
-    }
+    echo "Setting up Node.js version ${nodeVersion}"
+    // Add setup logic here
 }
