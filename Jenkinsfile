@@ -1,4 +1,4 @@
-@Library('.jenkins') _  // Load the shared library
+@Library('my-shared-library') _  // Load the shared library
 
 pipeline {
     agent any
