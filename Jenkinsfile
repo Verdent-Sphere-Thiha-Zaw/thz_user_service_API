@@ -1,5 +1,5 @@
 pipeline {
-    agent AMDx86  // Use any available agent
+    agent { label 'AMDx86' } // Use any available agent
     tools {
         nodejs 'NodeJS'  // Use the name you gave in the configuration
     }
