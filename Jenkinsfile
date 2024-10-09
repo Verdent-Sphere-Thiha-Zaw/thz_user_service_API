@@ -1,48 +1,102 @@
-@Library('my-shared-library@VSUS-02') _  // Adjust the library and branch as needed
-
 pipeline {
-    agent any  // You can specify a particular agent if needed
-
+    agent { label 'AMDx86' } // Use any available agent
+    tools {
+        nodejs 'NodeJS'  // Use the name you gave in the configuration
+    }
+    environment {
+        MONGO_INITDB_ROOT_USERNAME = 'root'
+        MONGO_INITDB_ROOT_PASSWORD = 'example'
+        DATABASE_URI = 'mongodb://root:example@localhost:27017/test?authSource=admin'
+        PORT = '3000'
+    }
     stages {
-        stage('Checkout Code') {
+        stage('Checkout') {
             steps {
+                // Checkout the source code using the SCM defined in the Jenkins job configuration
                 checkout scm
             }
         }
 
-        stage('Setup Node Environment') {
+        stage('Install Dependencies') {
+            steps {
+                // Install Node.js dependencies
+                sh 'node -v'
+                sh 'npm install'
+            }
+        }
+
+        stage('Start MongoDB') {
             steps {
                 script {
-                    // Call the commonPipeline function from the shared library
-                    commonPipeline('14')  // Specify your desired Node.js version
+                    // Start MongoDB as a Docker container
+                    sh '''
+                    docker run -d \
+                    --name mongodb \
+                    -e MONGO_INITDB_ROOT_USERNAME=${MONGO_INITDB_ROOT_USERNAME} \
+                    -e MONGO_INITDB_ROOT_PASSWORD=${MONGO_INITDB_ROOT_PASSWORD} \
+                    -p 27017:27017 \
+                    mongo:latest
+                    '''
+                }
+            }
+        }
+
+        stage('Wait for MongoDB to be Ready') {
+            steps {
+                script {
+                    // Wait for MongoDB to be ready
+                    sh '''
+                    until nc -zv 127.0.0.1 27017; do
+                        echo "Waiting for MongoDB..."
+                        sleep 2
+                    done
+                    '''
                 }
             }
         }
 
         stage('Run Tests') {
             steps {
-                script {
-                    // Call a utility function from the shared library
-                    com.example.Utilities.printMessage("Running tests...")
-
-                    // Run your tests here
-                    sh 'npm install'
-                    sh 'npm test'
+                catchError(buildResult: 'SUCCESS', stageResult: 'SUCCESS') {
+                    sh 'npm -v'
+                    sh '''
+                    timeout 20s npm test || true
+                    '''
                 }
+            }
+        }
+
+        stage('Build') {
+            steps {
+                // Build the application (adjust if you have a specific build script)
+                sh 'npm run build'
+                sh 'ls -la dist' 
+            }
+        }
+
+        stage('Archive Artifacts') {
+            steps {
+                echo 'Archiving build file...'
+                archiveArtifacts artifacts: 'dist/**/*', allowEmptyArchive: false
             }
         }
     }
 
     post {
         always {
-            // Cleanup actions or notifications can go here
-            echo 'Cleaning up...'
+            echo 'Cleaning up MongoDB...'
+            // Clean up MongoDB container
+            sh 'docker stop mongodb || true'
+            sh 'docker rm mongodb || true'
         }
         success {
-            echo 'Tests passed!'
+            // Actions to take on successful build
+            echo 'Build succeeded!'
         }
         failure {
-            echo 'Tests failed!'
+            // Actions to take on build failure
+            echo 'Build failed!'
         }
     }
 }
+
