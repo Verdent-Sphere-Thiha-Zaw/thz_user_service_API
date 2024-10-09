@@ -34,6 +34,13 @@ pipeline {
             }
         }
 
+        stage('Archive Artifacts') {
+            steps {
+                echo 'Archiving build file...'
+                archiveArtifacts artifacts: 'dist', allowEmptyArchive: false
+            }
+        }
+
         // stage('Deploy') {
         //     steps {
         //         // Deployment steps (adjust according to your needs)
