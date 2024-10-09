@@ -2,13 +2,13 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { HealthCheckService } from '@nestjs/terminus';
-import { MongooseHealthIndicator } from '@nestjs/terminus'; // If you are using Mongoose health checks
+import { MongooseHealthIndicator } from '@nestjs/terminus';
 
 describe('AppController', () => {
   let appController: AppController;
 
   const mockHealthCheckService = {
-    check: jest.fn().mockResolvedValue({ status: 'ok' }), // Mock implementation of the health check
+    check: jest.fn().mockResolvedValue({ status: 'ok' }),
   };
 
   const mockAppService = {
@@ -28,9 +28,10 @@ describe('AppController', () => {
     appController = app.get<AppController>(AppController);
   });
 
-  describe('root', () => {
-    it('should return "Hello World!"', () => {
-      expect(appController.getHello()).toBe('Hello World!'); // Ensure this matches your actual implementation
+  describe('health check', () => {
+    it('should return health check status', async () => {
+      const result = await appController.getHello(); // Await the result of getHello
+      expect(result).toEqual({ status: 'ok' }); // Check the expected result
     });
   });
 });
