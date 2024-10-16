@@ -39,4 +39,4 @@ jobs:
         run: |
           export PORT=3000
           export DATABASE_URI=mongodb://root:example@localhost:27017/test?authSource=admin
-          timeout 10s npm test || true
+          timeout 10s pnpm test || true
