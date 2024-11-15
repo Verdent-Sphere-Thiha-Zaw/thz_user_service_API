@@ -20,4 +20,4 @@ jobs:
           
       - name: Build the app
         run: |
-          npm run build
+          pnpm build

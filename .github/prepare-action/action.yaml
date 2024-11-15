@@ -15,8 +15,12 @@ runs:
       with:
         node-version: ${{ inputs.node-version }} # or the version you are using
 
+    - name: Install pnpm
+      run: npm install -g pnpm
+      shell: bash
+
     - name: Install dependencies
-      run: npm install
+      run: pnpm install
       shell: bash
 
     - name: Cache the app dependencies
