@@ -60,4 +60,3 @@ jobs:
 #     uses: ./.github/workflows/scan.yaml
 #     secrets:
 #       KUBE_CONFIG_DATA: ${{ secrets.KUBE_CONFIG_DATA }}
-
