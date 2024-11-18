@@ -1,0 +1,23 @@
+name: "Build Next Application"
+
+on:
+  workflow_call:
+    inputs:
+      node-version:
+        required: true
+        type: string
+jobs:
+  build:
+    name: Build Next App
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - uses: ./.github/prepare-action
+        with:
+          node-version: ${{ inputs.node-version }}
+          
+      - name: Build the app
+        run: |
+          pnpm build

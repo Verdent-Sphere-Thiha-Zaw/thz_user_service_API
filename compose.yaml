@@ -10,6 +10,10 @@ services:
 
   nestjs-app:
     container_name: nestjs-app
+<<<<<<< HEAD
+=======
+    # image: techrepos/multi:dev
+>>>>>>> VSUS-02
     build:
       context: .
       dockerfile: Dockerfile

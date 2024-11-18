@@ -1,0 +1,63 @@
+name: "CI Workflow"
+on:
+    pull_request:
+      types: [opened, synchronize, reopened]
+    push:
+      # branches:
+      #   - VSUS-02
+      #   - main
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  build:
+    name: Build
+    uses: ./.github/workflows/Build.yaml
+    with:
+      node-version: '22'
+
+  owasp:
+    name: Scan the Web App
+    uses: ./.github/workflows/owasp.yaml
+    secrets:
+      PAT: ${{ secrets.PAT }}
+
+  test:
+    name: Test
+    needs: [build]
+    uses: ./.github/workflows/test.yaml
+    with:
+      node-version: '22'
+
+  snyk:
+    name: SAST (SNYK)
+    needs: [test]
+    uses: ./.github/workflows/scan2.yaml
+    secrets:
+      SNYK_TOKEN: ${{ secrets.SNYK }}
+
+  scan:
+    name: SAST
+    needs: [test]
+    uses: ./.github/workflows/scan.yaml
+    secrets:
+      SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
+      SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+      PAT: ${{ secrets.PAT }}
+        
+  push:
+    name: Push
+    needs: [test]
+    uses: ./.github/workflows/push.yaml
+    secrets:
+      DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+      DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
+      PAT: ${{ secrets.PAT }}
+
+#   deploy:
+#     name: Deploy
+#     needs: [push]
+#     uses: ./.github/workflows/scan.yaml
+#     secrets:
+#       KUBE_CONFIG_DATA: ${{ secrets.KUBE_CONFIG_DATA }}
+

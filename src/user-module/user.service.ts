@@ -1,7 +1,11 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { User } from './schema/user.schema';
+<<<<<<< HEAD
 import { Model, Types } from 'mongoose';
+=======
+import { Model } from 'mongoose';
+>>>>>>> VSUS-02
 import { CreateUserDto, UpdateUserDto } from './dto';
 import { IUser } from 'src/common';
 import { UserTransformer } from './transformer';
@@ -21,6 +25,7 @@ export class UserService {
   }
 
   async update(updateUserDto: UpdateUserDto): Promise<IUser> {
+<<<<<<< HEAD
     if (!Types.ObjectId.isValid(updateUserDto.id)) {
       throw new Error('Invalid user ID');
     }
@@ -28,12 +33,18 @@ export class UserService {
     const updatedUser = await this.userModel.findByIdAndUpdate(
       { _id: { $eq: updateUserDto.id } },
       { $set: updateData },
+=======
+    const updatedUser = await this.userModel.findByIdAndUpdate(
+      updateUserDto.id,
+      { ...updateUserDto },
+>>>>>>> VSUS-02
       { new: true },
     );
 
     return UserTransformer.transformerToUser(updatedUser);
   }
 
+<<<<<<< HEAD
   private sanitizeUpdateData(updateUserDto: UpdateUserDto): Partial<UpdateUserDto> {
     const allowedFields = ['name', 'email', 'password']; // Add all allowed fields here
     const sanitizedData: Partial<UpdateUserDto> = {};
@@ -45,6 +56,8 @@ export class UserService {
     return sanitizedData;
   }
 
+=======
+>>>>>>> VSUS-02
   async getUsers(): Promise<IUser[]> {
     const users = await this.userModel.find();
 

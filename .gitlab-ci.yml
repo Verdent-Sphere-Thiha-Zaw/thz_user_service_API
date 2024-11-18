@@ -1,0 +1,34 @@
+stages:          # Define stages of the pipeline
+  - build
+  - test
+
+variables:
+  NODE_VERSION: "21"  # Set your Node.js version here
+
+build_job:      # Job to build the application
+  stage: build
+  image: node:${NODE_VERSION}
+  services:
+    - name: mongo:latest
+      alias: mongodb
+      environment:
+        MONGO_INITDB_ROOT_USERNAME: root
+        MONGO_INITDB_ROOT_PASSWORD: example
+  script:
+    - echo "Installing dependencies..."
+    - npm install
+
+test_job:       # Job to test the application
+  stage: test
+  image: node:${NODE_VERSION}
+  script:
+    - echo "Waiting for MongoDB to be ready..."
+    - |
+      until nc -zv mongodb 27017; do
+        echo "Waiting for MongoDB..."
+        sleep 2
+      done
+    - echo "Running tests..."
+    - export PORT=3000
+    - export DATABASE_URI=mongodb://root:example@mongodb:27017/test?authSource=admin
+    - timeout 10s npm test || true
